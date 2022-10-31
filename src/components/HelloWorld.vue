@@ -1,37 +1,105 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    <div class="header card shadow ">Prime Number Generator</div>
+    <div class="container">
+      <div class="inputRange card shadow">
+        <div class="startRange">
+          <label for="inputStartRange">Enter Start Value of Range</label>
+          <b-input  v-model="start" id="inputStartRange" placeholder="Enter Value"></b-input>
+        </div>
+        <div class="endRange">
+          <label for="inputEndRange">Enter End Value of Range</label>
+  
+          <b-label for="inputEndRange"> </b-label>
+          <b-input v-model="end" id="inputEndRange" placeholder="Enter Value"></b-input>
+        </div>
+      </div>
+      <div class="algorithmsContainer card shadow">
+        <div class="algorithmOne">
+          <b-button v-on:click="setAlgoAsOne"> ALgorithm 1</b-button>
+  
+  
+  
+        </div>
+        <div class="algorithmTwo">
+          <b-button v-on:click="setAlgoAsTwo">  ALgorithm 2</b-button>
+  
+  
+        </div>
+
+       
+      </div>
+    </div>
+    {{response}}
+    
+    <div class="container1">
+      <div class="testGetRequest">
+        <b-button v-on:click="getRequest" class="getHistory">Refresh Table</b-button>
+      </div>
+      <div class="tableContainer">
+      <b-table :items="historyArray" :fields="fields" striped hover>
+
+      </b-table>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue'
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
+import axios from "axios"
+// Import Bootstrap and BootstrapVue CSS files (order is important)
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+// Make BootstrapVue available throughout your project
+Vue.use(BootstrapVue)
+// Optionally install the BootstrapVue icon components plugin
+Vue.use(IconsPlugin)
+
+
+
 export default {
+  data(){
+    return(
+      {
+        start:0,
+        end:0,
+        algo:"one",
+        historyArray:[],
+        fields:["start","end","AlgorithmChosen",{key:"Date",label:"Date & Time"},{key:"NumberOfPrimesReturned",label:"Number Of Primes"},"TimeElapsed"],
+        response:[]
+      }
+    )
+  },
+  methods:{
+    async getRequest(){
+      let res= await axios.get("http://localhost:3001","alpha")
+      this.historyArray=res.data
+    },
+    setAlgoAsOne(){
+      this.algo="one"
+      this.getPrimeNumbers()
+    },
+    setAlgoAsTwo(){
+      this.algo="two"
+      this.getPrimeNumbers()
+    },
+    async getPrimeNumbers(){
+
+      let res= await axios.post("http://localhost:3001",{"start":this.start,"end":this.end,"algo":this.algo})
+      // res=res.json()
+       console.log(res.data,res)
+
+      this.response=res.data
+      
+      
+      // console.log(this.response)
+      // console.log(res)
+    
+  },
+},
   name: 'HelloWorld',
   props: {
     msg: String
@@ -41,18 +109,40 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.header{
+  font-size: xx-large;
+
+  height: 100px;
+  margin: auto;
+  
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.inputRange{
+  margin: 50px;
+  width: 25%;
+  padding: 15px;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+label{
+  margin-left: auto;
 }
-a {
-  color: #42b983;
+.algorithmsContainer{
+  width: 50%;
+  margin: 50px;
+  padding-top: 15px;
+}
+.container{
+  display: flex;
+  flex-direction: row;
+}
+.algorithmOne,.algorithmTwo{
+  margin: 10px;
+}
+.getHistory{
+  margin-left: auto;
+}
+.tableContainer{
+  padding: 15px;
+}
+.container1{
+  margin: 10px;
 }
 </style>
